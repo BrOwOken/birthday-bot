@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace BirthdayBot.Models
+namespace BirthdayBot.Data.Models
 {
-    class Nameday
+    public class Nameday
     {
         [Key]
         public int Id { get; set; }
