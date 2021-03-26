@@ -9,6 +9,7 @@ namespace BirthdayBot.Data.Models
     {
         [Key]
         public int Id { get; set; }
+        public List<int> Watchers { get; set; }
         public string Name { get; set; }
         public byte Day { get; set; }
         public byte Month { get; set; }

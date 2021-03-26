@@ -22,10 +22,12 @@ namespace BirthdayBot
             Configuration = configuration;
         }
         public IConfiguration Configuration { get; }
-        public void ConfigureServices(IServiceCollection services)
+        public void ConfigureServices(IServiceCollection services, IServiceProvider serviceProvider)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+               options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+            services.AddSingleton<TelegramBot>();
+            services.AddSingleton(new DayService((TelegramBot)serviceProvider.GetService(typeof(TelegramBot)), (ApplicationDbContext)serviceProvider.GetService(typeof(ApplicationDbContext))));
             services.AddDatabaseDeveloperPageExceptionFilter();
         }
 

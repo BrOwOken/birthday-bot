@@ -9,7 +9,7 @@ namespace BirthdayBot.Data.Models
     {
         [Key]
         public int Id { get; set; }
-        public List<Nameday> WatchedNamedays { get; set; }
-        public List<Birthday> WatchedBirthdays { get; set; }
+        public List<int> WatchedNamedays { get; set; }
+        public List<int> WatchedBirthdays { get; set; }
     }
 }

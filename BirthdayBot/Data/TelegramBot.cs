@@ -6,12 +6,15 @@ using Telegram.Bot.Args;
 
 namespace BirthdayBot.Data
 {
-    class TelegramBot
+    public class TelegramBot
     {
         private ITelegramBotClient _botClient { get; set; }
-        public TelegramBot()
+        private ApplicationDbContext _dbContext;
+        public TelegramBot(ApplicationDbContext dbContext)
         {
-            _botClient = new TelegramBotClient("");
+            _dbContext = dbContext;
+
+            _botClient = new TelegramBotClient("1719454786:AAHDRuxRzcigoeb0vQnnc-uTyYJaSgLT3uA");
 
             _botClient.OnMessage += Bot_OnMessage;
 
@@ -19,7 +22,33 @@ namespace BirthdayBot.Data
         }
         async void Bot_OnMessage(object sender, MessageEventArgs e)
         {
+            var message = e.Message;
+            if (message.Text.StartsWith("/add"))
+            {
+                if(message.Text.ToLower() == "/addbirthday")
+                {
 
+                }
+                else if(message.Text.ToLower() == "/addnameday")
+                {
+
+                }
+            }
+            else if (message.Text.StartsWith("/remove"))
+            {
+                if (message.Text.ToLower() == "/removebirthday")
+                {
+
+                }
+                else if (message.Text.ToLower() == "/removenameday")
+                {
+
+                }
+            }
+            else
+            {
+
+            }
         }
     }
 }
