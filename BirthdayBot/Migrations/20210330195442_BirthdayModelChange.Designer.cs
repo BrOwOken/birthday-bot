@@ -4,14 +4,16 @@ using BirthdayBot.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace BirthdayBot.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20210330195442_BirthdayModelChange")]
+    partial class BirthdayModelChange
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -40,6 +42,8 @@ namespace BirthdayBot.Migrations
 
                     b.HasKey("Id");
 
+                    b.HasIndex("UserId");
+
                     b.ToTable("Birthdays");
                 });
 
@@ -59,7 +63,12 @@ namespace BirthdayBot.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Namedays");
                 });
@@ -71,12 +80,32 @@ namespace BirthdayBot.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("TelegramId")
-                        .HasColumnType("int");
-
                     b.HasKey("Id");
 
                     b.ToTable("Users");
+                });
+
+            modelBuilder.Entity("BirthdayBot.Data.Models.Birthday", b =>
+                {
+                    b.HasOne("BirthdayBot.Data.Models.User", null)
+                        .WithMany("WatchedBirthdays")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("BirthdayBot.Data.Models.Nameday", b =>
+                {
+                    b.HasOne("BirthdayBot.Data.Models.User", null)
+                        .WithMany("WatchedNamedays")
+                        .HasForeignKey("UserId");
+                });
+
+            modelBuilder.Entity("BirthdayBot.Data.Models.User", b =>
+                {
+                    b.Navigation("WatchedBirthdays");
+
+                    b.Navigation("WatchedNamedays");
                 });
 #pragma warning restore 612, 618
         }

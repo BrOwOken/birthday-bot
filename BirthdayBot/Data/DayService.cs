@@ -1,4 +1,5 @@
-﻿using System;
+﻿using BirthdayBot.Data.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,6 +15,10 @@ namespace BirthdayBot.Data
         {
             _dbContext = dbContext;
             _botClient = botClient;
+        }
+        public void RemoveBirthday(int id)
+        {
+            // _dbContext.Birthdays.Remove(_dbContext.Birthdays.FirstOrDefault());
         }
     }
 }
