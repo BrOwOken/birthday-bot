@@ -20,23 +20,24 @@ namespace BirthdayBot.Data
         public void AddBirthday(Birthday birthday, int userId)
         {
             Birthdays.Add(birthday);
-            Users.FirstOrDefault((u) => u.TelegramId == userId).WatchedBirthdays.Add(birthday.Id);
+            var user = Users.FirstOrDefault((u) => u.TelegramId == userId);
+            user.WatchedBirthdays.Add(birthday);
+            Entry(Users.FirstOrDefault((u) => u.TelegramId == userId)).CurrentValues.SetValues(user);
             SaveChanges();
         }
-        public void RemoveBirthday(int birthdayId)
+        public Birthday RemoveBirthday(int birthdayId)
         {
             var birthday = Birthdays.FirstOrDefault((b) => b.Id == birthdayId);
+            var user = Users.FirstOrDefault((u) => u.Id == birthday.UserId);
+            user.WatchedBirthdays.Remove(birthday);
+            Entry(Users.FirstOrDefault((u) => u.Id == birthday.UserId)).CurrentValues.SetValues(user);
             Birthdays.Remove(birthday);
-            Users.FirstOrDefault((u) => u.TelegramId == birthday.UserId).WatchedBirthdays.Remove(birthdayId);
+            SaveChanges();
+            return birthday;
         }
         public List<Birthday> GetBirthdays(int userId)
         {
-            var birhtdaysIds = Users.FirstOrDefault((u) => u.TelegramId == userId).WatchedBirthdays;
-            List<Birthday> birthdays = new List<Birthday>();
-            foreach (var id in birhtdaysIds)
-            {
-                birthdays.Add(Birthdays.FirstOrDefault((b) => b.Id == id));
-            }
+            var birthdays = Users.Include(u => u.WatchedBirthdays).First(u => u.TelegramId == userId).WatchedBirthdays;
             return birthdays;
         }
         public void UserInit(int id)
@@ -52,7 +53,7 @@ namespace BirthdayBot.Data
         // }
         public void AddNamedayToUser(int namedayId, int userId)
         {
-            Users.FirstOrDefault((u) => u.TelegramId == userId).WatchedNamedays.Add(namedayId);
+            Users.FirstOrDefault((u) => u.TelegramId == userId).WatchedNamedays.Add(Namedays.FirstOrDefault((n) => n.Id == namedayId));
             SaveChanges();
         }
     }

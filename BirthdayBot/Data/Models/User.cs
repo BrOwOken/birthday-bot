@@ -11,15 +11,13 @@ namespace BirthdayBot.Data.Models
         [Key]
         public int Id { get; set; }
         public int TelegramId { get; set; }
-        [NotMapped]
-        public List<int> WatchedNamedays { get; set; }
-        [NotMapped]
-        public List<int> WatchedBirthdays { get; set; }
-        public User(int id)
+        public List<Nameday> WatchedNamedays { get; set; }
+        public List<Birthday> WatchedBirthdays { get; set; }
+        public User(int telegramId)
         {
-            TelegramId = id;
-            WatchedNamedays = new List<int>();
-            WatchedBirthdays = new List<int>();
+            TelegramId = telegramId;
+            WatchedNamedays = new List<Nameday>();
+            WatchedBirthdays = new List<Birthday>();
         }
     }
 }

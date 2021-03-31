@@ -5,6 +5,7 @@ using System.Globalization;
 using System.Text;
 using Telegram.Bot;
 using Telegram.Bot.Args;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace BirthdayBot.Data
 {
@@ -21,6 +22,7 @@ namespace BirthdayBot.Data
             clients = new Dictionary<int, UserStatus>();
 
             _botClient.OnMessage += OnMessage;
+            _botClient.OnCallbackQuery += OnCallbackQuery;
 
             _botClient.StartReceiving();
         }
@@ -35,13 +37,13 @@ namespace BirthdayBot.Data
         }
         private bool SaveDate(string text, int id)
         {
-            if (DateTime.TryParseExact(text, "dd.MM.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
+            if (DateTime.TryParseExact(text, "dd.M.yyyy", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime date))
             {
                 clients[id].BirthdayDate = date;
                 clients[id].BirthdayYear = true;
                 return true;
             }
-            else if (DateTime.TryParseExact(text, "dd.MM", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateM))
+            else if (DateTime.TryParseExact(text, "dd.M", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime dateM))
             {
                 clients[id].BirthdayDate = dateM;
                 clients[id].BirthdayYear = false;
@@ -70,7 +72,42 @@ namespace BirthdayBot.Data
                 clients[message.From.Id].IsBirthdayCmd = false;
                 if (message.Text.ToLower() == "/removebirthday")
                 {
-
+                    
+                    var buttons = new List<InlineKeyboardButton[]>();
+                    var birthdays = _dbContext.GetBirthdays(message.From.Id);
+                    if(birthdays.Count == 0) 
+                    {
+                        await _botClient.SendTextMessageAsync(message.Chat, "There are no birthdays to remove.");
+                    }
+                    else
+                    {
+                        for (int i = 0; i < birthdays.Count; i++)
+                        {
+                            if (birthdays[i].IsYear)
+                            {
+                                buttons.Add(new InlineKeyboardButton[]
+                                {
+                                    new InlineKeyboardButton()
+                                    {
+                                        Text = $"{birthdays[i].Name} - {birthdays[i].Date.Day}.{birthdays[i].Date.Month}.{birthdays[i].Date.Year}",
+                                        CallbackData = $"rb_{birthdays[i].Id}"
+                                    }
+                                });
+                            }
+                            else
+                            {
+                                buttons.Add(new InlineKeyboardButton[]
+                                {
+                                    new InlineKeyboardButton()
+                                    {
+                                        Text = $"{birthdays[i].Name} - {birthdays[i].Date.Day}.{birthdays[i].Date.Month}.",
+                                        CallbackData = $"rb_{birthdays[i].Id}"
+                                    }
+                                });
+                            }
+                        }
+                        await _botClient.SendTextMessageAsync(message.Chat, "Click on birthday to remove.", replyMarkup: new InlineKeyboardMarkup(buttons));
+                    }
                 }
                 else if (message.Text.ToLower() == "/removenameday")
                 {
@@ -90,7 +127,7 @@ namespace BirthdayBot.Data
                     }
                     else
                     {
-                        response += "<b>Watched birthdays</b>\n\n";
+                        response += "<b><u>Watched birthdays</u></b>\n\n";
                         for (int i = 0; i < bdays.Count; i++)
                         {
                             if (i == bdays.Count - 1)
@@ -118,7 +155,7 @@ namespace BirthdayBot.Data
                         }
                         
                     }
-                    await _botClient.SendTextMessageAsync(message.Chat, response);
+                    await _botClient.SendTextMessageAsync(message.Chat, response, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
                 }
                 else if (message.Text.ToLower() == "/removenameday")
                 {
@@ -154,6 +191,21 @@ namespace BirthdayBot.Data
                     }
                 }
                 
+            }
+        }
+        async void OnCallbackQuery(object sender, CallbackQueryEventArgs e)
+        {
+            var query = e.CallbackQuery.Data.Split('_');
+            var action = query[0];
+            var id = query[1];
+            if (action == "rb")
+            {
+                var bday = _dbContext.RemoveBirthday(int.Parse(id));
+                await _botClient.SendTextMessageAsync(e.CallbackQuery.Message.Chat, $"{bday.Name}'s birthday was removed from the watchlist.");
+            }
+            else if (action == "rn")
+            {
+
             }
         }
     }
