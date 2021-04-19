@@ -18,7 +18,7 @@ namespace BirthdayBot.Data
         {
             _dbContext = dbContext;
 
-            _botClient = new TelegramBotClient("1719454786:AAGf9DlTH01GSqt0ghp6u5IBHMoLbdJYEbQ");
+            _botClient = new TelegramBotClient("1719454786:AAHQta2PjYRu3G7PD-2f7Op-2XhlUE3EhDA");
             clients = new Dictionary<int, UserStatus>();
 
             _botClient.OnMessage += OnMessage;
