@@ -25,14 +25,14 @@ namespace BirthdayBot.Data
             var thread = new Thread(new ThreadStart(Run));
             thread.Start();
         }
-        private async void Run()
+        private void Run()
         {
             int day = DateTime.Today.Day-1;
             while (true)
             {
                 if(DateTime.Today.Day != day)
                 {
-                    if(DateTime.Now.Hour == 21 && DateTime.Now.Minute == 18)
+                    if(DateTime.Now.Hour == 8 && DateTime.Now.Minute == 0)
                     {
                         day = DateTime.Today.Day;
                         NotifyUsers();
@@ -43,14 +43,15 @@ namespace BirthdayBot.Data
                 Thread.Sleep(50000);
             }
         }
-        public async void NotifyUsers()
+        public void NotifyUsers()
         {
             foreach (var user in _dbContext.Users)
             {
-                if(user.WatchedBirthdays.Count != 0)
+                var birthdays = _dbContext.GetBirthdays(user.TelegramId);
+                if(birthdays.Count != 0)
                 {
                     Dictionary<Birthday, int> birthdaysToNotify = new Dictionary<Birthday, int>();
-                    foreach (var birthday in user.WatchedBirthdays)
+                    foreach (var birthday in birthdays)
                     {
                         var daysUntil = (birthday.Date.Date - DateTime.Today.Date).Days;
                         
@@ -100,7 +101,7 @@ namespace BirthdayBot.Data
                                 message += "\n";
                             }
                         }
-                        await _botClient.SendNotification(user.TelegramId, message);
+                        _botClient.SendNotification(user.TelegramId, message);
                     }
                     else continue;
                 }
