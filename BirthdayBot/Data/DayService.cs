@@ -14,7 +14,6 @@ namespace BirthdayBot.Data
     {
         private TelegramBot _botClient;
         private ApplicationDbContext _dbContext;
-        private TimeSpan _notifySchedule;
         public DayService(TelegramBot botClient, ApplicationDbContext dbContext)
         {
             _dbContext = dbContext;
@@ -26,23 +25,25 @@ namespace BirthdayBot.Data
             var thread = new Thread(new ThreadStart(Run));
             thread.Start();
         }
-        private void Run()
+        private async void Run()
         {
             int day = DateTime.Today.Day-1;
             while (true)
             {
                 if(DateTime.Today.Day != day)
                 {
-                    if(DateTime.Today.Hour == 8 && DateTime.Today.Minute == 0)
+                    if(DateTime.Now.Hour == 21 && DateTime.Now.Minute == 18)
                     {
                         day = DateTime.Today.Day;
                         NotifyUsers();
+                        Console.WriteLine("Notifications were sent.");
                     }
                 }
-                Thread.Sleep(55000);
+                Console.WriteLine("Cycle ran.");
+                Thread.Sleep(50000);
             }
         }
-        public void NotifyUsers()
+        public async void NotifyUsers()
         {
             foreach (var user in _dbContext.Users)
             {
@@ -70,15 +71,38 @@ namespace BirthdayBot.Data
                             birthdaysToNotify.Add(birthday, 7);
                         }
                     }
-                    if(birthdaysToNotify.Count > 0)
+                    if (birthdaysToNotify.Count > 0)
                     {
-                        string message = "⚠️ <b><u>BIRTHDAY</u></b> ALERT ⚠️\n\n";
+                        string message = "⚠️ <b><u>BIRTHDAY ALERT</u></b> ⚠️\n\n";
                         var sortedBirthdays = SortBirthdays(birthdaysToNotify);
+                        int index = 0;
                         foreach (var bd in sortedBirthdays)
                         {
-
+                            if (bd.Value == 7)
+                            {
+                                message += $"{bd.Key.Name}'s birthday is in 1 week!";
+                            }
+                            else if (bd.Value == 3)
+                            {
+                                message += $"{bd.Key.Name}'s birthday is in 3 days!";
+                            }
+                            else if (bd.Value == 1)
+                            {
+                                message += $"{bd.Key.Name}'s birthday is in 1 day!";
+                            }
+                            else if (bd.Value == 0)
+                            {
+                                message += $"Woo, today is {bd.Key.Name}'s birthday! Go wish them happy birhday!";
+                            }
+                            index++;
+                            if (sortedBirthdays.Count-1 != index)
+                            {
+                                message += "\n";
+                            }
                         }
+                        await _botClient.SendNotification(user.TelegramId, message);
                     }
+                    else continue;
                 }
             }
         }

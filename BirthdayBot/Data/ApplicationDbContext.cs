@@ -40,6 +40,11 @@ namespace BirthdayBot.Data
             var birthdays = Users.Include(u => u.WatchedBirthdays).First(u => u.TelegramId == userId).WatchedBirthdays;
             return birthdays;
         }
+        //public int GetTelegramUserId(int userId)
+        //{
+        //    var user = Users.FirstOrDefault((u) => u.Id == userId));
+        //    return user.TelegramId;
+        //}
         public void UserInit(int id)
         {
             if (Users.FirstOrDefault((u) => u.TelegramId == id) != null) return;

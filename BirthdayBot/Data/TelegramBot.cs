@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text;
+using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using Telegram.Bot.Types.ReplyMarkups;
@@ -207,6 +208,10 @@ namespace BirthdayBot.Data
             {
 
             }
+        }
+        public async Task SendNotification(int telegramId, string notification)
+        {
+            await _botClient.SendTextMessageAsync(telegramId, notification, parseMode: Telegram.Bot.Types.Enums.ParseMode.Html);
         }
     }
 }
